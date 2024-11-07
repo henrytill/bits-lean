@@ -128,10 +128,6 @@ def Exp.denote (e : Exp t) : t.denote :=
   | .bconst b => b
   | .binop b e1 e2 => b.denote e1.denote e2.denote
 
-@[simp] theorem Exp.denote_nconst : (Exp.nconst n).denote = n := by rfl
-@[simp] theorem Exp.denote_bconst : (Exp.bconst b).denote = b := by rfl
-@[simp] theorem Exp.denote_binop : (Exp.binop op a b).denote = op.denote a.denote b.denote := by rfl
-
 example : (Exp.nconst 42).denote = 42 := by rfl
 
 example : (Exp.bconst true).denote = true := by rfl
@@ -161,10 +157,6 @@ def Instr.denote : Instr t u -> VStack t -> VStack u
   | .bconst b => fun s => (b, s)
   | .binop op => fun (x, (y, s)) => (op.denote x y, s)
 
-@[simp] theorem Instr.denote_nconst : (Instr.nconst n).denote s = (n, s) := by rfl
-@[simp] theorem Instr.denote_bconst : (Instr.bconst b).denote s = (b, s) := by rfl
-@[simp] theorem Instr.denote_binop : (Instr.binop op).denote (x, (y, s)) = (op.denote x y, s) := by rfl
-
 inductive Prog : Stack -> Stack -> Type where
   | nil : Prog s s
   | cons : Instr s1 s2 -> Prog s2 s3 -> Prog s1 s3
@@ -174,15 +166,9 @@ def Prog.denote : Prog t u -> VStack t -> VStack u
   | .nil => fun s => s
   | .cons i p => fun s => p.denote (i.denote s)
 
-@[simp] theorem Prog.denote_nil : Prog.nil.denote s = s := by rfl
-@[simp] theorem Prog.denote_cons : (Prog.cons i p).denote s = p.denote (i.denote s) := by rfl
-
 def Prog.concat : Prog t u → Prog u v → Prog t v
   | .nil => fun p => p
   | .cons i p => fun q => .cons i (concat p q)
-
-@[simp] theorem Prog.concat_nil : Prog.nil.concat ps = ps := by rfl
-@[simp] theorem Prog.concat_cons : (Prog.cons i ps).concat rs = .cons i (ps.concat rs) := by rfl
 
 def Exp.compile (e : Exp t) (s : Stack) : Prog s (t :: s) :=
   match e with
@@ -214,7 +200,7 @@ theorem concat_correct (p : Prog a b) (q : Prog b c) (s : VStack a) :
 theorem compile_correct' : forall (e : Exp t) (ts : Stack) (s : VStack ts),
   (e.compile ts).denote s = (e.denote, s) := by
   intro e
-  induction e <;> simp_all[Exp.compile, concat_correct]
+  induction e <;> simp_all[Exp.compile, Prog.denote, Instr.denote, Exp.denote, concat_correct]
 
 theorem compile_correct : forall (e : Exp t),
   (e.compile []).denote () = (e.denote, ()) := by
