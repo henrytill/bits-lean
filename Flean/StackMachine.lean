@@ -28,7 +28,6 @@ inductive Instr where
   | const : Nat -> Instr
   | binop : Binop -> Instr
 
-abbrev Prog := List Instr
 abbrev Stack := List Nat
 
 def Instr.denote (i : Instr) (s : Stack) : Option Stack :=
@@ -38,6 +37,8 @@ def Instr.denote (i : Instr) (s : Stack) : Option Stack :=
     match s with
     | arg1 :: arg2 :: s' => some (b.denote arg1 arg2 :: s')
     | _ => none
+
+abbrev Prog := List Instr
 
 def Prog.denote (p : Prog) (s : Stack) : Option Stack :=
   match p with
@@ -70,7 +71,7 @@ example : (Exp.binop .plus (.const 2) (.const 2)).compile.denote [] =
 example : (Exp.binop .times (.binop .plus (.const 2) (.const 2)) (.const 7)).compile.denote [] =
   some [28] := by rfl
 
-theorem compile_correct' (e : Exp) (p : Prog) (s : Stack) :
+theorem Exp.compile_correct' (e : Exp) (p : Prog) (s : Stack) :
   (e.compile ++ p).denote s = p.denote (e.denote :: s) := by
   induction e generalizing p s with
   | const n =>
@@ -81,9 +82,9 @@ theorem compile_correct' (e : Exp) (p : Prog) (s : Stack) :
     rw [ih1]
     simp [Prog.denote, Instr.denote, Exp.denote]
 
-theorem compile_correct (e : Exp) :
+theorem Exp.compile_correct (e : Exp) :
   e.compile.denote [] = some [e.denote] := by
-  have h := compile_correct' e [] []
+  have h := Exp.compile_correct' e [] []
   rw [List.append_nil] at h
   exact h
 
@@ -188,7 +189,7 @@ example : ((Exp.binop .lt (.binop .plus (.nconst 2) (.nconst 2)) (.nconst 7)).co
 
 #eval (Exp.binop .lt (.binop .plus (.nconst 2) (.nconst 2)) (.nconst 7)).compile []
 
-theorem concat_correct (p : Prog a b) (q : Prog b c) (s : VStack a) :
+theorem Prog.concat_correct (p : Prog a b) (q : Prog b c) (s : VStack a) :
   (p.concat q).denote s = q.denote (p.denote s) := by
   induction p with
   | nil =>
@@ -197,13 +198,13 @@ theorem concat_correct (p : Prog a b) (q : Prog b c) (s : VStack a) :
     simp [Prog.concat, Prog.denote]
     rw [ih]
 
-theorem compile_correct' : forall (e : Exp t) (ts : Stack) (s : VStack ts),
+theorem Exp.compile_correct' : forall (e : Exp t) (ts : Stack) (s : VStack ts),
   (e.compile ts).denote s = (e.denote, s) := by
   intro e
-  induction e <;> simp_all[Exp.compile, Prog.denote, Instr.denote, Exp.denote, concat_correct]
+  induction e <;> simp_all[Exp.compile, Prog.denote, Instr.denote, Exp.denote, Prog.concat_correct]
 
-theorem compile_correct : forall (e : Exp t),
+theorem Exp.compile_correct : forall (e : Exp t),
   (e.compile []).denote () = (e.denote, ()) := by
-  simp [compile_correct']
+  simp [Exp.compile_correct']
 
 end Typed
