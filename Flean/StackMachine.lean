@@ -78,8 +78,7 @@ theorem Exp.compile_correct' (e : Exp) (p : Prog) (s : Stack) :
     simp [Exp.compile, Prog.denote, Instr.denote, Exp.denote]
   | binop b e1 e2 ih1 ih2 =>
     simp [Exp.compile]
-    rw [ih2]
-    rw [ih1]
+    rw [ih2, ih1]
     simp [Prog.denote, Instr.denote, Exp.denote]
 
 theorem Exp.compile_correct (e : Exp) :
@@ -160,7 +159,7 @@ def Instr.denote : Instr t u -> VStack t -> VStack u
 
 inductive Prog : Stack -> Stack -> Type where
   | nil : Prog s s
-  | cons : Instr s1 s2 -> Prog s2 s3 -> Prog s1 s3
+  | cons : Instr t u -> Prog u v -> Prog t v
 deriving Repr
 
 def Prog.denote : Prog t u -> VStack t -> VStack u
@@ -201,7 +200,13 @@ theorem Prog.concat_correct (p : Prog a b) (q : Prog b c) (s : VStack a) :
 theorem Exp.compile_correct' : forall (e : Exp t) (ts : Stack) (s : VStack ts),
   (e.compile ts).denote s = (e.denote, s) := by
   intro e
-  induction e <;> simp_all[Exp.compile, Prog.denote, Instr.denote, Exp.denote, Prog.concat_correct]
+  induction e <;> simp_all [
+    Exp.compile,
+    Prog.denote,
+    Instr.denote,
+    Exp.denote,
+    Prog.concat_correct,
+  ]
 
 theorem Exp.compile_correct : forall (e : Exp t),
   (e.compile []).denote () = (e.denote, ()) := by
