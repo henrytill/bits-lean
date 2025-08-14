@@ -3,34 +3,34 @@
 inductive Ty : Type where
   | nat : Ty
   | unit : Ty
-  | arrow : Ty → Ty → Ty
+  | arrow : Ty -> Ty -> Ty
 
 infixr:60 " ~> " => Ty.arrow
 
-abbrev Ty.denote : Ty → Type
+abbrev Ty.denote : Ty -> Type
   | .nat => Nat
   | .unit => Unit
-  | .arrow a b => a.denote → b.denote
+  | .arrow a b => a.denote -> b.denote
 
-inductive Term : Ty → Type where
+inductive Term : Ty -> Type where
   | zero : Term .nat
   | succ : Term (.nat ~> .nat)
-  | const : {a b : Ty} → Term (a ~> b ~> a)
-  | fork : {a b c : Ty} → Term ((a ~> b ~> c) ~> (a ~> b) ~> (a ~> c))
-  | iter : {a : Ty} → Term (a ~> (a ~> a) ~> .nat ~> a)
-  | app : {a b : Ty} → Term (a ~> b) → Term a → Term b
+  | const : {a b : Ty} -> Term (a ~> b ~> a)
+  | fork : {a b c : Ty} -> Term ((a ~> b ~> c) ~> (a ~> b) ~> (a ~> c))
+  | iter : {a : Ty} -> Term (a ~> (a ~> a) ~> .nat ~> a)
+  | app : {a b : Ty} -> Term (a ~> b) -> Term a -> Term b
 
-def iterate {a : Type} (base : a) (step : a → a) : Nat → a
+def iterate {a : Type} (base : a) (step : a -> a) : Nat -> a
   | 0 => base
   | n + 1 => step (iterate base step n)
 
-def Term.denote : {a : Ty} → Term a → a.denote
+def Term.denote : {a : Ty} -> Term a -> a.denote
   | _, .zero => 0
   | _, .succ => fun n => n + 1
   | _, .const => fun x _ => x
   | _, .fork => fun f g x => f x (g x)
-  | _, .iter => fun base step n => iterate base step n
-  | _, .app f x => (f.denote) (x.denote)
+  | _, .iter => iterate
+  | _, .app f x => f.denote x.denote
 
 section Tests
 
