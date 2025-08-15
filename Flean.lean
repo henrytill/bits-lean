@@ -4,3 +4,4 @@ import Flean.Basic
 import Flean.Goedel
 import Flean.StackMachine
 import Flean.Fpil.Structures
+import Flean.Fpil.Poly
