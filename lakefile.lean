@@ -8,5 +8,5 @@ lean_lib «Flean» where
   -- add library configuration options here
 
 @[default_target]
-lean_exe "flean" where
-  root := `Main
+lean_exe "greet" where
+  root := `Greet
