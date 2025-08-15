@@ -1,4 +1,3 @@
-import Flean
+import Flean.Fpil.Greeting
 
-def main : IO Unit :=
-  IO.println s!"Hello, {hello}!"
+def main : IO Unit := challengeResponse
