@@ -11,3 +11,7 @@ lean_lib «Bits» where
 @[default_target]
 lean_exe "greet" where
   root := `Greet
+
+@[default_target]
+lean_exe "cat" where
+  root := `Cat

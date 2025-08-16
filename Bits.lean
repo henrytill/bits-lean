@@ -6,3 +6,4 @@ import Bits.StackMachine
 import Bits.Fpil.Structures
 import Bits.Fpil.Poly
 import Bits.Fpil.Greeting
+import Bits.Fpil.Catenate
