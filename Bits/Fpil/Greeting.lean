@@ -4,6 +4,6 @@ def challengeResponse : IO Unit := do
 
   stdout.putStrLn "How would you like to be addressed?"
   let input ← stdin.getLine
-  let name := input.dropRightWhile Char.isWhitespace
+  let name := (input.dropEndWhile Char.isWhitespace).toString
 
   stdout.putStrLn s!"Hello, {name}!"
